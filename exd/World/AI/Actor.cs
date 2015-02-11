@@ -31,6 +31,11 @@ namespace exd.World.AI
         /// </summary>
         protected double TaskBuildup = 0;
 
+        /// <summary>
+        /// The maximum weight our actor can carry
+        /// </summary>
+        public double MaxCarryWeight = 1000;
+
         protected ResourceCosts ResourcesCarried = new ResourceCosts();
 
         public Actor(WorldLocation location, PlaceableRotation rotation = PlaceableRotation.Rotate0Degrees, double? dob = null)
@@ -113,7 +118,18 @@ namespace exd.World.AI
 
         internal void AddCarry(ResourceCosts resources)
         {
-            ResourcesCarried.Add(resources);
+            var carriedweight = ResourcesCarried.TotalWeight;
+            var newweight = resources.TotalWeight;
+
+            if (carriedweight + newweight <= MaxCarryWeight)
+                ResourcesCarried.Add(resources);
+            else
+            {
+                // drop on the ground left overs
+                var newstack = resources.SplitToWeight(MaxCarryWeight - carriedweight);
+                ResourcesCarried.Add(resources);
+                GameWorld.Placeables.Add(new ResourceGroundStack(Location, newstack), true);
+            }
         }
     }
 }

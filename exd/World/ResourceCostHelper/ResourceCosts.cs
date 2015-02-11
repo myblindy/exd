@@ -32,6 +32,39 @@ namespace exd.World.ResourceCostHelper
             }
         }
 
+        public double TotalWeight
+        {
+            get
+            {
+                return -Resources.Sum(kvp => ResourceProperties.GetResourceWeight(kvp.Key) * kvp.Value);
+            }
+        }
+
+        public ResourceCosts SplitToWeight(double maxweight)
+        {
+            var newstack = new ResourceCosts();
+            var cummweight = 0.0;
+
+        redo:
+            foreach (var kvp in Resources)
+            {
+                var unitweight = ResourceProperties.GetResourceWeight(kvp.Key);
+                var qtytransfer = 0.0;
+
+                if (unitweight * -kvp.Value + cummweight > maxweight)
+                    qtytransfer = (maxweight - cummweight) / unitweight;
+
+                if (qtytransfer > 0)
+                {
+                    Add(kvp.Key, qtytransfer);
+                    newstack.Add(kvp.Key, -qtytransfer);
+                    goto redo;
+                }
+            }
+
+            return newstack;
+        }
+
         public IEnumerator<KeyValuePair<ResourceType, double>> GetEnumerator()
         {
             return Resources.GetEnumerator();

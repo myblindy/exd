@@ -45,6 +45,7 @@ namespace ExdUnitTests
             Assert.IsTrue(GameWorld.Placeables.GetPlaceables(new WorldLocation(3, 4)).OfType<Tree>().Count() == 0);
             Assert.IsTrue(GameWorld.Placeables.GetPlaceables(new WorldLocation(3, 5)).OfType<Tree>().Count() == 0);
             Assert.IsFalse(forest.Any(t => !t.Dead));
+            Assert.IsTrue(GameWorld.Placeables.GetPlaceables(new WorldLocation(3, 5)).OfType<ResourceGroundStack>().Count() == 1);
         }
     }
 }

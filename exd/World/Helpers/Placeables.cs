@@ -65,6 +65,13 @@ namespace exd.World.Helpers
         }
 
         /// <summary>
+        /// Can't update a collection while enumerating it, and we need to enumerate to run Update(),
+        /// so instead of directly adding to our collection, we add to a temporary list until we're done updating.
+        /// This will create one frame's worth of placeable ghosting, should be fine
+        /// </summary>
+        private List<Tuple<Placeable, bool>> AddPlaceableQueue = new List<Tuple<Placeable, bool>>();
+
+        /// <summary>
         /// Add a new resource to the world
         /// </summary>
         /// <param name="location">The resource location</param>
@@ -77,12 +84,17 @@ namespace exd.World.Helpers
             if (!dontcheck && GameWorld.IsSolidInTheWay(placeable.Location))
                 return false;
 
-            List<Placeable> placeables;
-            var partpos = placeable.Location.ToWorldPartition();
-            if (!PartitionedPlaceablesCollection.TryGetValue(partpos, out placeables))
-                PartitionedPlaceablesCollection.Add(partpos, placeables = new List<Placeable>());
+            if (Updating)
+                AddPlaceableQueue.Add(Tuple.Create(placeable, dontcheck));
+            else
+            {
+                List<Placeable> placeables;
+                var partpos = placeable.Location.ToWorldPartition();
+                if (!PartitionedPlaceablesCollection.TryGetValue(partpos, out placeables))
+                    PartitionedPlaceablesCollection.Add(partpos, placeables = new List<Placeable>());
 
-            placeables.Add(placeable);
+                placeables.Add(placeable);
+            }
 
             return true;
         }
@@ -112,15 +124,26 @@ namespace exd.World.Helpers
             }
         }
 
+        private bool Updating = false;
+
         /// <summary>
         /// Update all placeables
         /// </summary>
         public void Update(double delta)
         {
+            Updating = true;
+
             // update the current placeables
             foreach (var kvp in PartitionedPlaceablesCollection)
                 foreach (var placeable in kvp.Value.OfType<IUpdateable>())
                     placeable.Update(delta);
+
+            Updating = false;
+
+            // add any pending placeables
+            foreach (var placeable in AddPlaceableQueue)
+                Add(placeable.Item1, placeable.Item2);
+            AddPlaceableQueue.Clear();
 
             // remove any dead placeables
             foreach (var kvp in PartitionedPlaceablesCollection)
