@@ -1,9 +1,0 @@
-c:\users\mmitea\documents\visual studio 2012\Projects\exd\exd\obj\Debug\exd.Properties.Resources.resources
-c:\users\mmitea\documents\visual studio 2012\Projects\exd\exd\obj\Debug\exd.csproj.GenerateResource.Cache
-c:\users\mmitea\documents\visual studio 2012\Projects\exd\exd\bin\Debug\exd.pdb
-c:\users\mmitea\documents\visual studio 2012\Projects\exd\exd\obj\Debug\exd.pdb
-C:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\exd\bin\Debug\exd.dll.config
-C:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\exd\bin\Debug\exd.dll
-C:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\exd\obj\Debug\exd.dll
-C:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\exd\bin\Debug\exd.dll.CodeAnalysisLog.xml
-C:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\exd\bin\Debug\exd.dll.lastcodeanalysissucceeded
