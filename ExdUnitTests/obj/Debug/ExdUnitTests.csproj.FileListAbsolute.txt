@@ -1,0 +1,9 @@
+c:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\ExdUnitTests\bin\Debug\ExdUnitTests.dll
+c:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\ExdUnitTests\bin\Debug\ExdUnitTests.pdb
+c:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\ExdUnitTests\obj\Debug\ExdUnitTests.csprojResolveAssemblyReference.cache
+c:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\ExdUnitTests\obj\Debug\ExdUnitTests.dll
+c:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\ExdUnitTests\obj\Debug\ExdUnitTests.pdb
+c:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\ExdUnitTests\bin\Debug\exd.pdb
+C:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\ExdUnitTests\bin\Debug\exd.dll
+C:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\ExdUnitTests\bin\Debug\ExdUnitTests.dll.CodeAnalysisLog.xml
+C:\Users\mmitea\Documents\Visual Studio 2012\Projects\exd\ExdUnitTests\bin\Debug\ExdUnitTests.dll.lastcodeanalysissucceeded
