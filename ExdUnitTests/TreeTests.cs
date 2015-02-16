@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using exd.World;
 using exd.World.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -28,16 +27,16 @@ namespace ExdUnitTests
             Assert.IsTrue(GameWorld.Placeables.GetPlaceables(new WorldLocation(1, 1)).Count() == 0, "Tree exists at 1,1");
             Assert.IsTrue(GameWorld.Placeables.GetPlaceables(new WorldLocation(420, 1)).Count() == 0, "Tree exists at 420,1");
 
-            var trees = GameWorld.Placeables.GetPlaceables(new Rectangle(0, 0, 0, 0)).ToArray();
+            var trees = GameWorld.Placeables.GetPlaceables(new WorldPartitionRectangle(0, 0, 0, 0)).ToArray();
             Assert.IsTrue(trees.Count() == 3, "Partition 0,0 contains 3 trees");
             Assert.IsTrue(trees.Where(t => t.Location == new WorldLocation(0, 0)).Count() == 1, "Partition 0,0 contains one tree at 0,0");
             Assert.IsTrue(trees.Where(t => t.Location == new WorldLocation(100, 100)).Count() == 2, "Partition 0,0 contains two trees at 100,100");
             Assert.IsFalse(trees.Where(t => t.Location == new WorldLocation(420, 420)).Count() == 1, "Partition 0,0 contains one tree at 420,420");
 
-            trees = GameWorld.Placeables.GetPlaceables(new Rectangle(0, 0, 1, 1)).ToArray();
+            trees = GameWorld.Placeables.GetPlaceables(new WorldPartitionRectangle(0, 0, 1, 1)).ToArray();
             Assert.IsTrue(trees.Count() == 3, "Partitions (0,0)-(1,1) contain 3 trees");
 
-            trees = GameWorld.Placeables.GetPlaceables(new Rectangle(0, 0, 2, 2)).ToArray();
+            trees = GameWorld.Placeables.GetPlaceables(new WorldPartitionRectangle(0, 0, 2, 2)).ToArray();
             Assert.IsTrue(trees.Count() == 4, "Partitions (0,0)-(2,2) contain 4 trees");
             Assert.IsTrue(trees.Where(t => t.Location == new WorldLocation(420, 420)).Count() == 1, "Partitions (0,0)-(2,2) contain one tree at 420,420");
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace exd.World.Helpers
 {
-    [DebuggerDisplay("{Width}, {Height}")]
+    [DebuggerDisplay("{Width}x{Height}")]
     public struct WorldDimension
     {
         public long Width, Height;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,7 +63,10 @@ namespace exd.World.AI
 
         public ActorTask RequestNewTaskFor(Actor actor)
         {
-            var task = Tasks.FirstOrDefault(t => t.Assigned == null);
+            var task = Tasks.Where(t => t.Assigned == null)
+                .OrderBy(t => t.Target.Location.Distance(actor.Location))
+                .FirstOrDefault();
+
             if (task != null)
                 task.Assigned = actor;
 
@@ -82,7 +84,7 @@ namespace exd.World.AI
                 get
                 {
                     // request a list of placeables in our way
-                    var placeables = GameWorld.Placeables.GetPlaceables(new Rectangle(
+                    var placeables = GameWorld.Placeables.GetPlaceables(new WorldRectangle(
                         (int)Location.X - 1, (int)Location.Y - 1, 2, 2)).ToArray();
 
                     // and figure out which neighbors are valid
@@ -145,6 +147,9 @@ namespace exd.World.AI
         public void TaskDone(ActorTask CurrentTask)
         {
             Tasks.Remove(CurrentTask);
+            Debug.WriteLine(
+                "[{0:0.00s} task done] {1} {2} @{3} by {4}",
+                GameWorld.Now / 1000, CurrentTask.Type, CurrentTask.Target, CurrentTask.Target.Location, CurrentTask.Assigned);
         }
     }
 }

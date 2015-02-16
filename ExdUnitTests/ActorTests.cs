@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using exd.World;
 using exd.World.AI;
 using exd.World.Helpers;
@@ -20,8 +19,8 @@ namespace ExdUnitTests
             // plant trees
             var forest = new[] 
             { 
-                new Tree(new WorldLocation(3, 3)),
                 new Tree(new WorldLocation(3, 4)),
+                new Tree(new WorldLocation(3, 3)),
                 new Tree(new WorldLocation(3, 5))
             };
             Assert.IsTrue(GameWorld.Placeables.Add(forest));
@@ -41,6 +40,7 @@ namespace ExdUnitTests
             for (int i = 0; i < 10000; ++i)
                 GameWorld.Update(10);
 
+            // and check that all trees are cut at the end
             Assert.IsTrue(GameWorld.Placeables.GetPlaceables(new WorldLocation(3, 3)).OfType<Tree>().Count() == 0);
             Assert.IsTrue(GameWorld.Placeables.GetPlaceables(new WorldLocation(3, 4)).OfType<Tree>().Count() == 0);
             Assert.IsTrue(GameWorld.Placeables.GetPlaceables(new WorldLocation(3, 5)).OfType<Tree>().Count() == 0);

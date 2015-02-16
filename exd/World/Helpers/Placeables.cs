@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,10 +19,29 @@ namespace exd.World.Helpers
         /// <summary>
         /// Get the placeables contained in a rectangle of partitions
         /// </summary>
-        public IEnumerable<Placeable> GetPlaceables(Rectangle locations)
+        public IEnumerable<Placeable> GetPlaceables(WorldPartitionRectangle locations)
         {
-            for (int x = locations.Left; x <= locations.Right; ++x)
-                for (int y = locations.Top; y <= locations.Bottom; ++y)
+            for (var x = locations.X; x <= locations.X + locations.Width; ++x)
+                for (var y = locations.Y; y <= locations.Y + locations.Height; ++y)
+                {
+                    List<Placeable> placeables = null;
+                    if (PartitionedPlaceablesCollection.TryGetValue(new WorldPartition(x, y), out placeables))
+                        foreach (var placeable in placeables)
+                            if (!placeable.Dead)
+                                yield return placeable;
+                }
+        }
+
+        /// <summary>
+        /// Get the placeables contained in a rectangle of world locations
+        /// </summary>
+        public IEnumerable<Placeable> GetPlaceables(WorldRectangle rect)
+        {
+            var topleftpart = new WorldLocation(rect.X, rect.Y).ToWorldPartition();
+            var bottomrightpart = new WorldLocation(rect.X + rect.Width, rect.Y + rect.Height).ToWorldPartition();
+
+            for (var x = topleftpart.X; x <= bottomrightpart.X; ++x)
+                for (var y = topleftpart.Y; y <= bottomrightpart.Y; ++y)
                 {
                     List<Placeable> placeables = null;
                     if (PartitionedPlaceablesCollection.TryGetValue(new WorldPartition(x, y), out placeables))

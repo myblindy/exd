@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace exd.World.Helpers
 {
-    [DebuggerDisplay("{X}, {Y}")]
+    /// <summary>
+    /// A world location
+    /// </summary>
+    [DebuggerDisplay("{X},{Y}")]
     public struct WorldLocation
     {
         public long X, Y;
@@ -58,6 +61,11 @@ namespace exd.World.Helpers
         public static double Distance(WorldLocation l1, WorldLocation l2)
         {
             return Math.Sqrt((l1.X - l2.X) * (l1.X - l2.X) + (l1.Y - l2.Y) * (l1.Y - l2.Y));
+        }
+
+        public double Distance(WorldLocation l)
+        {
+            return Distance(l, this);
         }
     }
 }

@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace exd.World.Helpers
 {
-    [DebuggerDisplay("{X}, {Y}")]
+    /// <summary>
+    /// A world partition (usually built from a world location)
+    /// </summary>
+    [DebuggerDisplay("{X},{Y}")]
     public struct WorldPartition
     {
         public long X, Y;
