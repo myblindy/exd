@@ -17,7 +17,8 @@ namespace exd.World.Resources
         {
             get
             {
-                return DeadOverride || !DateOfDeath.HasValue || GameWorld.Now >= DateOfDeath;
+                return DeadOverride ||
+                    (DateOfDeath.HasValue && GameWorld.Now >= DateOfDeath);
             }
             set
             {

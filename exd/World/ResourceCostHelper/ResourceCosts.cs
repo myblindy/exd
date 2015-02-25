@@ -65,6 +65,36 @@ namespace exd.World.ResourceCostHelper
             return newstack;
         }
 
+        public bool SufficientlyCovers(ResourceCosts costs)
+        {
+            foreach (var kvp in costs)
+                if (Math.Abs(this[kvp.Key]) < Math.Abs(kvp.Value))
+                    return false;
+
+            return true;
+        }
+
+        public static ResourceCosts operator +(ResourceCosts a, ResourceCosts b)
+        {
+            var clone = new ResourceCosts();
+            clone.Add(a);
+            clone.Add(b);
+
+            return clone;
+        }
+
+        public bool StillRequired
+        {
+            get
+            {
+                foreach (var kvp in Resources)
+                    if (kvp.Value > 0)
+                        return true;
+
+                return false;
+            }
+        }
+
         public IEnumerator<KeyValuePair<ResourceType, double>> GetEnumerator()
         {
             return Resources.GetEnumerator();

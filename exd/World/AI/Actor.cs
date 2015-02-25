@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using exd.World.Buildings;
 using exd.World.Helpers;
 using exd.World.ResourceCostHelper;
 using exd.World.Resources;
@@ -27,6 +28,11 @@ namespace exd.World.AI
         public double GatherSpeed = 0.3;
 
         /// <summary>
+        /// The actor's build speed in units/sec
+        /// </summary>
+        public double BuildSpeed = 0.3;
+
+        /// <summary>
         /// Meter buildup until the current task is done
         /// </summary>
         protected double TaskBuildup = 0;
@@ -36,7 +42,7 @@ namespace exd.World.AI
         /// </summary>
         public double MaxCarryWeight = 1000;
 
-        protected ResourceCosts ResourcesCarried = new ResourceCosts();
+        public ResourceCosts ResourcesCarried = new ResourceCosts();
 
         public Actor(WorldLocation location, PlaceableRotation rotation = PlaceableRotation.Rotate0Degrees, double? dob = null)
             : base(location, rotation, dob)
@@ -53,6 +59,10 @@ namespace exd.World.AI
                     return newstep.Location.X != Location.X && newstep.Location.Y != Location.Y ? DiagonalMovementCost : 1;
                 case ActorTaskType.Gather:
                     return ((AbstractGroundResource)newstep.Placeable).GetGatherDuration(this);
+                case ActorTaskType.Build:
+                    return ((Building)newstep.Placeable).BuiltBuildupRequired;
+                case ActorTaskType.DropResources:
+                    return ((Building)newstep.Placeable).GetDropDuration(this);
                 default:
                     throw new InvalidOperationException("Invalid task step.");
             }
@@ -84,6 +94,17 @@ namespace exd.World.AI
                 CurrentTaskStepIndex = 0;
                 CurrentTaskSteps = GameWorld.ActorCentralIntelligence.ResolveTaskIntoSteps(CurrentTask);
                 CurrentTaskStepDuration = GetTaskStepDuration(CurrentTaskSteps[0]);
+
+                // if this is a feeder task, promise the resources to the main task
+                if (CurrentTask.Type == ActorTaskType.FeedBuilding)
+                {
+                    var building = (Building)CurrentTask.Target;
+                    foreach (var resource in CurrentTaskSteps.Where(t => t.StepType == ActorTaskType.Gather)
+                        .Select(t => ((AbstractGroundResource)t.Placeable).GetRemainingResources()))
+                    {
+                        building.PromisedResourceCosts.Add(resource);
+                    }
+                }
             }
 
             if (CurrentTaskSteps != null && CurrentTaskSteps.Any() && CurrentTaskStepIndex < CurrentTaskSteps.Length)
@@ -107,6 +128,24 @@ namespace exd.World.AI
                             TaskBuildup -= CurrentTaskStepDuration;
                             ((AbstractGroundResource)CurrentTaskSteps[CurrentTaskStepIndex].Placeable)
                                 .GatherFinished(this);
+                            StepDone();
+                        }
+                        break;
+                    case ActorTaskType.DropResources:
+                        if ((TaskBuildup += GatherSpeed * delta / 1000.0) >= CurrentTaskStepDuration)
+                        {
+                            TaskBuildup -= CurrentTaskStepDuration;
+                            ((Building)CurrentTaskSteps[CurrentTaskStepIndex].Placeable)
+                                .DropResourcesFinished(this);
+                            StepDone();
+                        }
+                        break;
+                    case ActorTaskType.Build:
+                        // the buildup is stored on the building
+                        var building = (Building)CurrentTaskSteps[CurrentTaskStepIndex].Placeable;
+                        building.BuiltBuildup += BuildSpeed * delta / 1000.0;
+                        if (building.Built)
+                        {
                             StepDone();
                         }
                         break;

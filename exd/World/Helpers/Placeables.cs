@@ -83,6 +83,16 @@ namespace exd.World.Helpers
         }
 
         /// <summary>
+        /// Get every placeable in the world
+        /// </summary>
+        public IEnumerable<Placeable> GetPlaceables()
+        {
+            foreach (var kvp in PartitionedPlaceablesCollection)
+                foreach (var placeable in kvp.Value)
+                    yield return placeable;
+        }
+
+        /// <summary>
         /// Can't update a collection while enumerating it, and we need to enumerate to run Update(),
         /// so instead of directly adding to our collection, we add to a temporary list until we're done updating.
         /// This will create one frame's worth of placeable ghosting, should be fine
