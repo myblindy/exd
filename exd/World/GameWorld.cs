@@ -50,6 +50,7 @@ namespace exd.World
         /// </summary>
         public static void Initialize(int sizeX, int sizeY, int? rngseed = null)
         {
+            Now = 0;
             ResourceProperties.Initialize();
             Placeables = new Placeables();
             ActorCentralIntelligence = new AI.ActorCentralIntelligence();
@@ -58,6 +59,8 @@ namespace exd.World
             MapSize = new WorldDimension(sizeX, sizeY);
             ScreenSize = new WorldDimension();
             CameraLocation = new WorldLocation();
+
+            Logger.Log("game initialized");
         }
 
         public static void Update(double delta)

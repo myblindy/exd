@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using exd.World.Resources;
 
 namespace exd.World.AI
 {
+    [DebuggerDisplay("{Name} @{Location}")]
     public class Actor : Placeable, IUpdateable
     {
         protected ActorTask CurrentTask = null;
@@ -44,6 +46,8 @@ namespace exd.World.AI
         public double MaxCarryWeight = 1000;
 
         public ResourceCosts ResourcesCarried = new ResourceCosts();
+
+        public string Name { get; set; }
 
         public Actor(WorldLocation location, PlaceableRotation rotation = PlaceableRotation.Rotate0Degrees, double? dob = null)
             : base(location, rotation, dob)
@@ -177,6 +181,11 @@ namespace exd.World.AI
                 ResourcesCarried.Add(resources);
                 GameWorld.Placeables.Add(new ResourceGroundStack(Location, newstack), true);
             }
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

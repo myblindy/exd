@@ -32,7 +32,7 @@ namespace ExdUnitTests
             Assert.IsFalse(forest.Any(t => t.Dead));
 
             // create an actor
-            var actor = new Actor(new WorldLocation(0, 0));
+            var actor = new Actor(new WorldLocation(0, 0)) { Name = "Serge" };
             Assert.IsTrue(GameWorld.Placeables.Add(actor));
 
             // add tasks to cut the trees
@@ -50,15 +50,22 @@ namespace ExdUnitTests
             Assert.IsTrue(GameWorld.Placeables.GetPlaceables(new WorldLocation(3, 5)).OfType<ResourceGroundStack>().Count() == 1);
         }
 
-        [TestMethod]
-        public void BuildingWithStackedResources()
+        private void BuildingWithStackedResources(int nactors)
         {
             GameWorld.Initialize(100, 100, 50);
 
-            // spawn the actor
-            Assert.IsTrue(GameWorld.Placeables.Add(new Actor(new WorldLocation(5, 5))));
+            var actorlocations = new[] { new WorldLocation(5, 5), new WorldLocation(6, 5), new WorldLocation(7, 5) };
+            var actornames = new[] { "Jeff", "Marla", "Scooby" };
 
-            // spawn some wood stacks around him
+            var actors = Enumerable.Range(0, nactors)
+                .Select(i => new Actor(actorlocations[i]) { Name = actornames[i] })
+                .ToArray();
+
+            // spawn the actors
+            foreach (var actor in actors)
+                Assert.IsTrue(GameWorld.Placeables.Add(actor));
+
+            // spawn some wood stacks around them
             Assert.IsTrue(GameWorld.Placeables.Add(new ResourceGroundStack(new WorldLocation(2, 2),
                 new ResourceCosts { { ResourceType.Wood, -50 } })));
             Assert.IsTrue(GameWorld.Placeables.Add(new ResourceGroundStack(new WorldLocation(2, 5),
@@ -79,6 +86,24 @@ namespace ExdUnitTests
 
             // and check the end state
             Assert.IsTrue(storage.Built);
+        }
+
+        [TestMethod]
+        public void BuildingWithStackedResources1Actor()
+        {
+            BuildingWithStackedResources(1);
+        }
+
+        [TestMethod]
+        public void BuildingWithStackedResources2Actors()
+        {
+            BuildingWithStackedResources(2);
+        }
+
+        [TestMethod]
+        public void BuildingWithStackedResources3Actors()
+        {
+            BuildingWithStackedResources(3);
         }
     }
 }

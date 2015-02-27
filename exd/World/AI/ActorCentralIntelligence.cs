@@ -228,9 +228,8 @@ namespace exd.World.AI
             Tasks.Remove(CurrentTask);
             CurrentTask.Done = true;
 
-            Debug.WriteLine(
-                "[{0:0.00s} task done] {1} {2} @{3} by {4}",
-                GameWorld.Now / 1000, CurrentTask.Type, CurrentTask.Target, CurrentTask.Target.Location, CurrentTask.Assigned);
+            Logger.Log("task done", "{0} {1} @{2} by {3}",
+                CurrentTask.Type, CurrentTask.Target, CurrentTask.Target.Location, CurrentTask.Assigned);
         }
     }
 }

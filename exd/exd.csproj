@@ -55,6 +55,7 @@
     <Compile Include="World\Buildings\Storage.cs" />
     <Compile Include="World\Constants.cs" />
     <Compile Include="World\GameWorld.cs" />
+    <Compile Include="World\Helpers\Logger.cs" />
     <Compile Include="World\Helpers\PriorityQueue.cs" />
     <Compile Include="World\Helpers\PromiseToken.cs" />
     <Compile Include="World\Helpers\WorldPartitionRectangle.cs" />
