@@ -56,6 +56,7 @@
     <Compile Include="World\Constants.cs" />
     <Compile Include="World\GameWorld.cs" />
     <Compile Include="World\Helpers\PriorityQueue.cs" />
+    <Compile Include="World\Helpers\PromiseToken.cs" />
     <Compile Include="World\Helpers\WorldPartitionRectangle.cs" />
     <Compile Include="World\Helpers\WorldRectangle.cs" />
     <Compile Include="World\Helpers\WorldPartition.cs" />

@@ -86,7 +86,7 @@ namespace exd.World.AI
                 if (task.Type == ActorTaskType.Build)
                 {
                     var building = (Building)task.Target;
-                    if ((building.ResourceCosts + building.PromisedResourceCosts).StillRequired)
+                    if (!building.PromiseCovers(building.ResourceCosts))
                     {
                         var feedtask = new ActorTask(building, ActorTaskType.FeedBuilding) { DependencyFor = task, Assigned = actor };
                         task.DependsOn.Add(feedtask);
@@ -195,12 +195,6 @@ namespace exd.World.AI
 
                 if (res == null)
                     throw new InvalidOperationException("No stack found to feed building.");
-
-                if (!res.ResourceCosts.SufficientlyCovers(building.ResourceCosts))
-                {
-                    var newfeedtask = new ActorTask(building, ActorTaskType.FeedBuilding);
-                    Tasks.Add(newfeedtask);
-                }
 
                 // path to go to the resource
                 var pathtores = AStarSearch.FindPath(

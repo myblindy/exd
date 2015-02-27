@@ -14,6 +14,7 @@ namespace exd.World.AI
     {
         protected ActorTask CurrentTask = null;
         protected ActorTaskStep[] CurrentTaskSteps = null;
+        protected PromiseToken[] CurrentPromiseTokens = null;
         protected double CurrentTaskStepDuration = 0;
         protected int CurrentTaskStepIndex = 0;
 
@@ -79,6 +80,14 @@ namespace exd.World.AI
         private void TaskDone()
         {
             GameWorld.ActorCentralIntelligence.TaskDone(CurrentTask);
+
+            if (CurrentPromiseTokens != null)
+            {
+                foreach (var token in CurrentPromiseTokens)
+                    token.Done();
+                CurrentPromiseTokens = null;
+            }
+
             CurrentTask = null;
             CurrentTaskSteps = null;
         }
@@ -99,11 +108,10 @@ namespace exd.World.AI
                 if (CurrentTask.Type == ActorTaskType.FeedBuilding)
                 {
                     var building = (Building)CurrentTask.Target;
-                    foreach (var resource in CurrentTaskSteps.Where(t => t.StepType == ActorTaskType.Gather)
-                        .Select(t => ((AbstractGroundResource)t.Placeable).GetRemainingResources()))
-                    {
-                        building.PromisedResourceCosts.Add(resource);
-                    }
+                    CurrentPromiseTokens = CurrentTaskSteps.Where(t => t.StepType == ActorTaskType.Gather)
+                        .Select(t => ((AbstractGroundResource)t.Placeable).GetRemainingResources())
+                        .Select(r => building.Promise(r))
+                        .ToArray();
                 }
             }
 

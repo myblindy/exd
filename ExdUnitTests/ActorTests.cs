@@ -74,8 +74,8 @@ namespace ExdUnitTests
             GameWorld.ActorCentralIntelligence.AddBuildTask(storage);
 
             // game loop
-            for (int i = 0; i < 10000; ++i)
-                GameWorld.Update(10);
+            for (int i = 0; i < 100000; ++i)
+                GameWorld.Update(30);
 
             // and check the end state
             Assert.IsTrue(storage.Built);

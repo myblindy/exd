@@ -14,12 +14,12 @@ namespace exd.World.Buildings
         public Building(WorldLocation location, WorldDimension dimension, PlaceableRotation rotation, double? dob = null)
             : base(location, dimension, rotation, dob)
         {
-            PromisedResourceCosts = new ResourceCosts();
+            PromisedResourceCosts = new Dictionary<PromiseToken, ResourceCosts>();
         }
 
         public abstract string BuildingName { get; }
         public abstract ResourceCosts ResourceCosts { get; }
-        public ResourceCosts PromisedResourceCosts { get; private set; }
+        protected Dictionary<PromiseToken, ResourceCosts> PromisedResourceCosts { get; private set; }
 
         public double BuiltBuildup { get; set; }
         public abstract double BuiltBuildupRequired { get; }
@@ -45,6 +45,28 @@ namespace exd.World.Buildings
                     }
                 }
             }
+        }
+
+        public PromiseToken Promise(ResourceCosts res)
+        {
+            PromiseToken token = new PromiseToken(t => PromiseFinished(t));
+            PromisedResourceCosts.Add(token, res);
+
+            return token;
+        }
+
+        public void PromiseFinished(PromiseToken token)
+        {
+            PromisedResourceCosts.Remove(token);
+        }
+
+        public bool PromiseCovers(ResourceCosts resourceCosts)
+        {
+            foreach (var kvp in resourceCosts)
+                if (kvp.Value + PromisedResourceCosts.Sum(kvp1 => kvp1.Value[kvp.Key]) > 0)
+                    return false;
+
+            return true;
         }
     }
 }
