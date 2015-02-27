@@ -113,8 +113,8 @@ namespace exd.World.AI
                 {
                     var building = (Building)CurrentTask.Target;
                     CurrentPromiseTokens = CurrentTaskSteps.Where(t => t.StepType == ActorTaskType.Gather)
-                        .Select(t => ((AbstractGroundResource)t.Placeable).GetRemainingResources())
-                        .Select(r => building.Promise(r))
+                        .Select(t => (AbstractGroundResource)t.Placeable)
+                        .Select(r => building.Promise(r.GetRemainingResources(), r))
                         .ToArray();
                 }
             }

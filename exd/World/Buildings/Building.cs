@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using exd.World.AI;
 using exd.World.Helpers;
 using exd.World.ResourceCostHelper;
+using exd.World.Resources;
 
 namespace exd.World.Buildings
 {
@@ -47,9 +48,9 @@ namespace exd.World.Buildings
             }
         }
 
-        public PromiseToken Promise(ResourceCosts res)
+        public PromiseToken Promise(ResourceCosts res, AbstractGroundResource grndres)
         {
-            PromiseToken token = new PromiseToken(t => PromiseFinished(t));
+            PromiseToken token = new PromiseToken(t => PromiseFinished(t), grndres);
             PromisedResourceCosts.Add(token, res);
 
             return token;

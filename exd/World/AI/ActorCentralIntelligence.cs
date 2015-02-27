@@ -183,7 +183,9 @@ namespace exd.World.AI
                 ResourceGroundStack res = null;
                 var building = task.Target as Building;
                 foreach (var resource in GameWorld.Placeables.GetPlaceables()
-                    .OfType<ResourceGroundStack>().OrderBy(p => p.Location.Distance(task.Assigned.Location)))
+                    .OfType<ResourceGroundStack>()
+                    .Where(r => PromiseToken.GetTokenByResourcePromised(r) == null)
+                    .OrderBy(p => p.Location.Distance(task.Assigned.Location)))
                 {
                     // can we use the stack?
                     if (resource.ResourceCosts.Any(r => building.ResourceCosts[r.Key] > 0 && r.Value < 0))
