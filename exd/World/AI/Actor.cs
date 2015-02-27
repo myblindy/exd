@@ -60,6 +60,8 @@ namespace exd.World.AI
 
             switch (newstep.StepType)
             {
+                case ActorTaskType.FailTask:
+                    return 0;
                 case ActorTaskType.Move:
                     return newstep.Location.X != Location.X && newstep.Location.Y != Location.Y ? DiagonalMovementCost : 1;
                 case ActorTaskType.Gather:
@@ -73,17 +75,20 @@ namespace exd.World.AI
             }
         }
 
-        private void StepDone()
+        private void StepDone(bool fail = false)
         {
             if (++CurrentTaskStepIndex < CurrentTaskSteps.Length)
                 CurrentTaskStepDuration = GetTaskStepDuration(CurrentTaskSteps[CurrentTaskStepIndex]);
             else
-                TaskDone();
+                TaskDone(fail);
         }
 
-        private void TaskDone()
+        private void TaskDone(bool fail = false)
         {
-            GameWorld.ActorCentralIntelligence.TaskDone(CurrentTask);
+            if (fail)
+                GameWorld.ActorCentralIntelligence.TaskFail(CurrentTask);
+            else
+                GameWorld.ActorCentralIntelligence.TaskDone(CurrentTask);
 
             if (CurrentPromiseTokens != null)
             {
@@ -126,6 +131,9 @@ namespace exd.World.AI
                 // step-specific logic
                 switch (step.StepType)
                 {
+                    case ActorTaskType.FailTask:
+                        StepDone(true);
+                        break;
                     case ActorTaskType.Move:
                         if ((TaskBuildup += MovementSpeed * delta / 1000.0) >= CurrentTaskStepDuration)
                         {

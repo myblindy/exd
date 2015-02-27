@@ -62,8 +62,7 @@ namespace ExdUnitTests
                 .ToArray();
 
             // spawn the actors
-            foreach (var actor in actors)
-                Assert.IsTrue(GameWorld.Placeables.Add(actor));
+            Assert.IsTrue(GameWorld.Placeables.Add(actors));
 
             // spawn some wood stacks around them
             Assert.IsTrue(GameWorld.Placeables.Add(new ResourceGroundStack(new WorldLocation(2, 2),
@@ -104,6 +103,59 @@ namespace ExdUnitTests
         public void BuildingWithStackedResources3Actors()
         {
             BuildingWithStackedResources(3);
+        }
+
+        private void BuildingWithTrees(int nactors)
+        {
+            GameWorld.Initialize(100, 100, 50);
+
+            var actorlocations = new[] { new WorldLocation(5, 2), new WorldLocation(6, 2), new WorldLocation(7, 2) };
+            var actornames = new[] { "Jeff", "Marla", "Scooby" };
+
+            var actors = Enumerable.Range(0, nactors)
+                .Select(i => new Actor(actorlocations[i]) { Name = actornames[i] })
+                .ToArray();
+
+            // spawn the actors
+            Assert.IsTrue(GameWorld.Placeables.Add(actors));
+
+            // spawn some wood stacks around them
+            var forest = Enumerable.Range(0, 10).SelectMany(i => Enumerable.Range(10, 4).Select(j =>
+                new Tree(new WorldLocation(i, j)))).ToArray();
+            Assert.IsTrue(GameWorld.Placeables.Add(forest));
+
+            // place the stockpile blueprint
+            var storage = new Storage(new WorldLocation(5, 3), new WorldDimension(5, 5));
+            Assert.IsTrue(GameWorld.Placeables.Add(storage));
+
+            // set the goals
+            GameWorld.ActorCentralIntelligence.AddGatherTask(forest);
+            GameWorld.ActorCentralIntelligence.AddBuildTask(storage);
+
+            // game loop
+            for (int i = 0; i < 100000; ++i)
+                GameWorld.Update(30);
+
+            // and check the end state
+            Assert.IsTrue(storage.Built);
+        }
+
+        [TestMethod]
+        public void BuildingWithTrees1Actor()
+        {
+            BuildingWithTrees(1);
+        }
+
+        [TestMethod]
+        public void BuildingWithTrees2Actors()
+        {
+            BuildingWithTrees(2);
+        }
+
+        [TestMethod]
+        public void BuildingWithTrees3Actors()
+        {
+            BuildingWithTrees(3);
         }
     }
 }

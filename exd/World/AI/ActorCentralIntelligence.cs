@@ -17,7 +17,8 @@ namespace exd.World.AI
         Build,
         FeedBuilding,
         Hunt,
-        DropResources
+        DropResources,
+        FailTask
     }
 
     [DebuggerDisplay("{Type} {Target}, assigned to {Assigned}")]
@@ -52,11 +53,18 @@ namespace exd.World.AI
             StepType = steptype;
             Placeable = placeable;
         }
+
+        public ActorTaskStep(ActorTaskType steptype)
+            : this(new WorldLocation(0, 0), steptype, null)
+        {
+
+        }
     }
 
     public class ActorCentralIntelligence
     {
         private List<ActorTask> Tasks = new List<ActorTask>();
+        private List<Tuple<double, ActorTask>> RecentlyFailedTasks = new List<Tuple<double, ActorTask>>();
 
         public void AddGatherTask(AbstractGroundResource resource)
         {
@@ -76,7 +84,9 @@ namespace exd.World.AI
 
         public ActorTask RequestNewTaskFor(Actor actor)
         {
-            var tasks = Tasks.Where(t => t.Assigned == null)
+            RecentlyFailedTasks.RemoveAll(t => GameWorld.Now - t.Item1 >= 500);
+
+            var tasks = Tasks.Where(t => t.Assigned == null && !RecentlyFailedTasks.Any(ft => ft.Item2 == t))
                 .OrderBy(t => t.Target.Location.Distance(actor.Location));
 
             // go one by one through the list of tasks 
@@ -179,50 +189,79 @@ namespace exd.World.AI
             else if (task.Type == ActorTaskType.FeedBuilding)
             {
                 // this is a bit special
-                // first find a resource
-                ResourceGroundStack res = null;
+                // whatever i'm carrying, is this good enough?
                 var building = task.Target as Building;
-                foreach (var resource in GameWorld.Placeables.GetPlaceables()
-                    .OfType<ResourceGroundStack>()
-                    .Where(r => PromiseToken.GetTokenByResourcePromised(r) == null)
-                    .OrderBy(p => p.Location.Distance(task.Assigned.Location)))
+                bool justdrop = false;
+                if (task.Assigned.ResourcesCarried.Any(r => building.ResourceCosts[r.Key] > 0 && r.Value < 0))
+                    justdrop = true;
+
+                // if not, find a resource
+                ResourceGroundStack res = null;
+                if (!justdrop)
                 {
-                    // can we use the stack?
-                    if (resource.ResourceCosts.Any(r => building.ResourceCosts[r.Key] > 0 && r.Value < 0))
+                    foreach (var resource in GameWorld.Placeables.GetPlaceables()
+                        .OfType<ResourceGroundStack>()
+                        .Where(r => PromiseToken.GetTokenByResourcePromised(r) == null)
+                        .OrderBy(p => p.Location.Distance(task.Assigned.Location)))
                     {
-                        res = resource;
-                        break;
+                        // can we use the stack?
+                        if (resource.ResourceCosts.Any(r => building.ResourceCosts[r.Key] > 0 && r.Value < 0))
+                        {
+                            res = resource;
+                            break;
+                        }
                     }
+
+                    // fail the task if we can't find a resource
+                    if (res == null)
+                        return new[] { new ActorTaskStep(ActorTaskType.FailTask) };
                 }
 
-                if (res == null)
-                    throw new InvalidOperationException("No stack found to feed building.");
-
                 // path to go to the resource
-                var pathtores = AStarSearch.FindPath(
-                    new AStarNode(task.Assigned.Location),
-                    new AStarNode(res.Location),
-                    (n1, n2) => n1.Location.Distance(n2.Location),
-                    n => n.Location.Distance(res.Location));
+                AStarSearch.Path<AStarNode> pathtores = null;
+                if (!justdrop)
+                {
+                    pathtores = AStarSearch.FindPath(
+                        new AStarNode(task.Assigned.Location),
+                        new AStarNode(res.Location),
+                        (n1, n2) => n1.Location.Distance(n2.Location),
+                        n => n.Location.Distance(res.Location));
+                }
 
                 // and path to bring it to the building
                 var pathfromrestobuilding = AStarSearch.FindPath(
-                    new AStarNode(res.Location),
+                    new AStarNode(justdrop ? task.Assigned.Location : res.Location),
                     new AStarNode(building.Location),
                     (n1, n2) => n1.Location.Distance(n2.Location),
-                    n => n.Location.Distance(res.Location));
+                    n => n.Location.Distance(building.Location));
 
                 // put it together
-                return pathtores.Select(n => new ActorTaskStep(n.Location, ActorTaskType.Move, null))
-                    .Reverse().Skip(1)
-                    .Concat(new[] { new ActorTaskStep(res.Location, ActorTaskType.Gather, res) })
-                    .Concat(pathfromrestobuilding.Select(n => new ActorTaskStep(n.Location, ActorTaskType.Move, null))
-                        .Reverse().Skip(1))
-                    .Concat(new[] { new ActorTaskStep(building.Location, ActorTaskType.DropResources, building) })
-                    .ToArray();
+                if (justdrop)
+                    return pathfromrestobuilding.Select(n => new ActorTaskStep(n.Location, ActorTaskType.Move, null))
+                        .Reverse().Skip(1)
+                        .Concat(new[] { new ActorTaskStep(building.Location, ActorTaskType.DropResources, building) })
+                        .ToArray();
+                else
+                    return pathtores.Select(n => new ActorTaskStep(n.Location, ActorTaskType.Move, null))
+                        .Reverse().Skip(1)
+                        .Concat(new[] { new ActorTaskStep(res.Location, ActorTaskType.Gather, res) })
+                        .Concat(pathfromrestobuilding.Select(n => new ActorTaskStep(n.Location, ActorTaskType.Move, null))
+                            .Reverse().Skip(1))
+                        .Concat(new[] { new ActorTaskStep(building.Location, ActorTaskType.DropResources, building) })
+                        .ToArray();
             }
             else
                 throw new InvalidOperationException("Invalid task.");
+        }
+
+        public void TaskFail(ActorTask CurrentTask)
+        {
+            Tasks.Remove(CurrentTask);
+            RecentlyFailedTasks.Add(Tuple.Create(GameWorld.Now, CurrentTask.DependencyFor ?? CurrentTask));
+            CurrentTask.Done = true;
+
+            Logger.Log("task fail", "{0} {1} @{2} by {3}",
+                CurrentTask.Type, CurrentTask.Target, CurrentTask.Target.Location, CurrentTask.Assigned);
         }
 
         public void TaskDone(ActorTask CurrentTask)
