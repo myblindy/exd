@@ -89,7 +89,7 @@ namespace exdxna.Screens
                 entry.Position = position;
 
                 // move down for the next entry the size of this entry
-                position.Y += entry.GetHeight(this);
+                position.Y += (float)entry.GetHeight(this);
             }
         }
 
@@ -132,13 +132,12 @@ namespace exdxna.Screens
             // Draw the menu title centered on the screen
             var titleposition = new Vector2(graphics.Viewport.Width / 2, 80);
             var titleorigin = font.MeasureString(MenuTitle) / 2;
-            var titlecolor = new Color(192, 192, 192) * TransitionAlpha;
-            var titlescale = 1.25;
+            var titlecolor = ExdSettings.MenuTitleColor * TransitionAlpha;
 
             titleposition.Y -= (float)(transitionoffset * 100);
 
             spritebatch.DrawString(font, MenuTitle, titleposition, titlecolor, 0,
-                                   titleorigin, (float)titlescale, SpriteEffects.None, 0);
+                titleorigin, (float)ExdSettings.MenuTitleScale, SpriteEffects.None, 0);
 
             spritebatch.End();
         }

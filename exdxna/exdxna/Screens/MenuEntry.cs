@@ -45,11 +45,11 @@ namespace exdxna.Screens
 
         public virtual void Draw(MenuScreen screen, bool isselected, GameTime gametime)
         {
-            var color = isselected ? Color.Yellow : Color.White;
+            var color = isselected ? ExdSettings.MenuColorSelected : ExdSettings.MenuColorUnselected;
             var time = gametime.TotalGameTime.TotalSeconds;
 
             var pulsate = Math.Sin(time * 6) + 1;
-            var scale = 1 + pulsate * 0.05 * SelectionFade;
+            var scale = GetScale(screen);
             color *= screen.TransitionAlpha;
 
             // draw the text
@@ -62,14 +62,20 @@ namespace exdxna.Screens
             spritebatch.DrawString(font, Text, Position, color, 0, origin, (float)scale, SpriteEffects.None, 0);
         }
 
-        public virtual int GetHeight(MenuScreen screen)
+        public virtual double GetScale(MenuScreen screen)
         {
-            return screen.ScreenManager.Font.LineSpacing;
+            var scale = ExdSettings.MenuScale + 0.3 * SelectionFade;
+            return scale;
+        }
+
+        public virtual double GetHeight(MenuScreen screen)
+        {
+            return screen.ScreenManager.Font.LineSpacing * GetScale(screen);
         }
 
         public virtual double GetWidth(MenuScreen screen)
         {
-            return screen.ScreenManager.Font.MeasureString(Text).X;
+            return screen.ScreenManager.Font.MeasureString(Text).X * GetScale(screen);
         }
     }
 
