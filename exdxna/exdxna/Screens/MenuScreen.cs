@@ -34,6 +34,7 @@ namespace exdxna.Screens
         {
             PlayerIndex playerindex;
 
+            // mappings
             if (MenuUp.Evaluate(input, ControllingPlayer, out playerindex))
                 if (--SelectedEntry < 0)
                     SelectedEntry = MenuEntries.Count - 1;
@@ -47,6 +48,23 @@ namespace exdxna.Screens
 
             if (MenuCancel.Evaluate(input, ControllingPlayer, out playerindex))
                 OnCancel(playerindex);
+
+            // mouse
+            var mousestate = Mouse.GetState();
+            for (int i = 0; i < MenuEntries.Count; ++i)
+            {
+                var entry = MenuEntries[i];
+                var entrypos = new Rectangle((int)entry.Position.X, (int)entry.Position.Y, (int)entry.GetWidth(this), (int)entry.GetHeight(this));
+                if (entrypos.Contains(mousestate.X, mousestate.Y))
+                {
+                    SelectedEntry = i;
+
+                    if (mousestate.LeftButton == ButtonState.Pressed)
+                        OnSelectEntry(SelectedEntry, playerindex);
+
+                    break;
+                }
+            }
         }
 
         protected virtual void OnCancel(PlayerIndex playerindex)

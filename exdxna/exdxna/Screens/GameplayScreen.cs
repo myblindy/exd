@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using exd.World;
+using exd.World.AI;
+using exd.World.Helpers;
+using exd.World.Resources;
 using exdxna.GameStateManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -40,8 +44,23 @@ namespace exdxna.Screens
                 // TODO remove this
                 Thread.Sleep(1000);
 
+                InitializeWorld();
                 ScreenManager.Game.ResetElapsedTime();
             }
+        }
+
+        private void InitializeWorld()
+        {
+            GameWorld.Initialize(100, 100);
+
+            // add some trees
+            GameWorld.Placeables.Add(Enumerable.Range(0, 10).SelectMany(i => Enumerable.Range(10, 3).Select(j =>
+                new Tree(new WorldLocation(i, j)))));
+
+            // and a few actors
+            GameWorld.Placeables.Add(new[]{
+                new Actor(new WorldLocation(2,0)){Name="Steve"},
+                new Actor(new WorldLocation(5,0)){Name="Martha"}});
         }
 
         public override void Unload()
@@ -60,9 +79,12 @@ namespace exdxna.Screens
                 PauseAlpha = Math.Max(PauseAlpha - 1.0 / 32, 0);
 
             if (IsActive)
-            {
-                // TODO game
-            }
+                GameWorld.Update(gametime.ElapsedGameTime.TotalMilliseconds);
+        }
+
+        public override void Draw(GameTime gametime)
+        {
+            
         }
     }
 }
