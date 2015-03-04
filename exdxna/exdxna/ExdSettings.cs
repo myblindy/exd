@@ -13,5 +13,7 @@ namespace exdxna
         public const double MenuScale = 0.70;
         public static readonly Color MenuTitleColor = MenuColorUnselected;
         public const double MenuTitleScale = 1.0;
+
+        public const double TileSizePx = 35;
     }
 }

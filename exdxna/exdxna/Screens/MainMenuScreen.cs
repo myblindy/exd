@@ -5,7 +5,7 @@ using System.Text;
 
 namespace exdxna.Screens
 {
-    class MainMenuScreen: MenuScreen
+    class MainMenuScreen : MenuScreen
     {
         public MainMenuScreen()
             : base("Main Menu")
@@ -27,7 +27,7 @@ namespace exdxna.Screens
 
         protected override void OnCancel(Microsoft.Xna.Framework.PlayerIndex playerindex)
         {
-            // todo
+            ScreenManager.Game.Exit();
         }
     }
 }

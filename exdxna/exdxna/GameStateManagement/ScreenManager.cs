@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Xml.Linq;
+using exdxna.Helpers;
 
 namespace exdxna.GameStateManagement
 {
@@ -35,7 +36,7 @@ namespace exdxna.GameStateManagement
 
         InputState input = new InputState();
 
-        SpriteBatch spriteBatch;
+        ExtendedSpriteBatch spriteBatch;
         SpriteFont font;
         Texture2D blankTexture;
 
@@ -52,7 +53,7 @@ namespace exdxna.GameStateManagement
         /// A default SpriteBatch shared by all the screens. This saves
         /// each screen having to bother creating their own local instance.
         /// </summary>
-        public SpriteBatch SpriteBatch
+        public ExtendedSpriteBatch SpriteBatch
         {
             get { return spriteBatch; }
         }
@@ -125,7 +126,7 @@ namespace exdxna.GameStateManagement
             // Load content belonging to the screen manager.
             ContentManager content = Game.Content;
 
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            spriteBatch = new ExtendedSpriteBatch(GraphicsDevice);
             font = content.Load<SpriteFont>("menufont");
             blankTexture = content.Load<Texture2D>("blank");
 

@@ -19,6 +19,7 @@ namespace exdxna.Screens
     {
         ContentManager Content;
         SpriteFont GameFont;
+        Texture2D GrassTexture;
 
         double PauseAlpha;
 
@@ -53,6 +54,9 @@ namespace exdxna.Screens
         {
             GameWorld.Initialize(100, 100);
 
+            var bounds = ScreenManager.GraphicsDevice.Viewport.Bounds;
+            GameWorld.ScreenSize = new WorldDimension((long)(bounds.Width / ExdSettings.TileSizePx), (long)(bounds.Height / ExdSettings.TileSizePx));
+
             // add some trees
             GameWorld.Placeables.Add(Enumerable.Range(0, 10).SelectMany(i => Enumerable.Range(10, 3).Select(j =>
                 new Tree(new WorldLocation(i, j)))));
@@ -84,7 +88,15 @@ namespace exdxna.Screens
 
         public override void Draw(GameTime gametime)
         {
-            
+            var batch = ScreenManager.SpriteBatch;
+            var bounds = ScreenManager.GraphicsDevice.Viewport.Bounds;
+
+            batch.Begin();
+            for (int x = 0; x < bounds.Width / ExdSettings.TileSizePx; ++x)
+                for (int y = 0; y < bounds.Height / ExdSettings.TileSizePx; ++y)
+                    batch.DrawRectangle(new Rectangle((int)(GameWorld.CameraLocation.X + x * ExdSettings.TileSizePx), (int)(GameWorld.CameraLocation.Y + y * ExdSettings.TileSizePx), 
+                        (int)(ExdSettings.TileSizePx), (int)(ExdSettings.TileSizePx)), Color.Green);
+            batch.End();
         }
     }
 }
